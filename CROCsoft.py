@@ -46,18 +46,30 @@ configfile = 'CROCparams.bcf'
 #==============================================
 
 # Send the 96-bit word to set the CROC register
-wordparam = create96bitWord(configfile)
-spi.writebytes(wordparam)
-GPIO.output(LOAD, GPIO.HIGH)
-GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+#wordparam = create96bitWord(configfile)
+ch3 = '0b1100111010001101'
+ch2 = '0b1111100010001101'
+ch1 = '0b0000001100111110'
+ch0 = '0b1111110100001111'
+mbz = '0b00000000'
+pol = '0b10000000'
+off = '0b01111000'
+polib = '0b10000000'
+wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
+write=True
+if write:
+	spi.writebytes(wordparam)
+	GPIO.output(LOAD, GPIO.HIGH)
+	GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
 
 
-
-# Get the 96-bit word from the CROC register
-GPIO.output(LOAD, GPIO.HIGH)
-# >>> send a single SCLK pulse
-GPIO.output(LOAD, GPIO.LOW)
-out=spi.readbytes(12)
+read=False
+if read:
+	# Get the 96-bit word from the CROC register
+	GPIO.output(LOAD, GPIO.HIGH)
+	# >>> send a single SCLK pulse
+	GPIO.output(LOAD, GPIO.LOW)
+	out=spi.readbytes(12)
 
 
 
