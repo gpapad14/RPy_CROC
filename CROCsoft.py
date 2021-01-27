@@ -32,11 +32,21 @@ spi.max_speed_hz = SCLKfreq
 # We need 2 more signals: LOAD, READ
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-LOAD = 13 # pin number (randomly chosen)
-READ = 19 # pin number (randomly chosen)
+SCLK = 5 # GPIO5
+MOSI = 6 # GPIO6
+MISO = 13 # GPIO13
+LOAD = 19 # GPIO19
+READ = 26 # GPIO26
+
+GPIO.setup(SCLK, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(MOSI, GPIO.OUT, initial=GPIO.LOW)
+#GPIO.setup(MISO, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(LOAD, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(READ, GPIO.OUT, initial=GPIO.LOW)
 
+GPIO.output(SCLK, GPIO.LOW) # make sure it is low
+GPIO.output(MOSI, GPIO.LOW) # make sure it is low
+#GPIO.output(MISO, GPIO.LOW) # make sure it is low
 GPIO.output(LOAD, GPIO.LOW) # make sure it is low
 GPIO.output(READ, GPIO.LOW) # make sure it is low
 
@@ -58,7 +68,8 @@ pol = '0b10000000'
 off = '0b01111000'
 polib = '0b10000000'
 wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
-write=False
+write=True
+'''
 if write:
     #print(type(wordparam), wordparam)
     message = []
@@ -68,17 +79,30 @@ if write:
     spi.writebytes(message)
     GPIO.output(LOAD, GPIO.HIGH)
     GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+'''
 
-if not write:
+if write:
     for i in range(96):
-        GPIO.output(LOAD, GPIO.HIGH)
-        #GPIO.output(READ, GPIO.HIGH)
+        GPIO.output(SCLK, GPIO.HIGH)
         if wordparam[2+i]=='1':
-            GPIO.output(READ, GPIO.HIGH)    
-        GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
-        GPIO.output(READ, GPIO.LOW)
-    
+            GPIO.output(MOSI, GPIO.HIGH) 
+        GPIO.output(SCLK, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+        GPIO.output(MOSI, GPIO.LOW)
+    GPIO.output(LOAD, GPIO.HIGH)
+    GPIO.output(LOAD, GPIO.LOW)
 
+if read:
+	GPIO.output(READ, GPIO.HIGH)
+	GPIO.output(SCLK, GPIO.HIGH)
+	GPIO.output(SCLK, GPIO.LOW)
+	GPIO.output(READ, GPIO.LOW)
+	for i in range(96):
+        GPIO.output(SCLK, GPIO.HIGH)
+        # read the MISO gpio and save the info.
+        GPIO.output(SCLK, GPIO.LOW)
+
+
+'''
 read=False
 if False:
     # Get the 96-bit word from the CROC register
@@ -86,7 +110,7 @@ if False:
     # >>> send a single SCLK pulse
     GPIO.output(LOAD, GPIO.LOW)
     out=spi.readbytes(12)
-
+'''
 
 
 
