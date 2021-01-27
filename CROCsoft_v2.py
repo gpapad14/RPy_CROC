@@ -37,20 +37,25 @@ configfile = 'CROCparams.bcf'
 
 # Send the 96-bit word to set the CROC register
 #wordparam = create96bitWord(configfile)
-ch3 = '0b0001011010001101'
-ch2 = '0b0001010010001101'
-ch1 = '0b0001011100111110'
-ch0 = '0b0001010100001111'
-mbz = '0b00000000'
-pol = '0b10000000'
-off = '0b01111000'
+#        <gain>CE<-RC->TV
+ch3 = '0b0001010100000011'
+ch2 = '0b0001010100000011'
+ch1 = '0b0001110100000011'
+ch0 = '0b0001010100000011'
+mbz = '0b00000000' # Must Be Zero, DO NOT CHANGE THIS!
+pol =   '0b10000000'
+off =   '0b11111000'
 polib = '0b10000000'
-wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
+#wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
+wordparam = '0b' + ch3[-1:1:-1] + ch2[-1:1:-1] + ch1[-1:1:-1] + ch0[-1:1:-1] + mbz[-1:1:-1] + pol[-1:1:-1] + off[-1:1:-1] + polib[-1:1:-1]
+print('wordparam =', wordparam)
 
 def programCROC(wordparam):
+    print('>>> Programming CROC')
     if type(wordparam)==type(1):
         wordparamBIN=bin(wordparam)
         wordparam='0b'
+        
         for i in range (96-len(wordparamBIN[2:])):
             wordparam+='0'
         wordparam+=wordparamBIN[2:]
@@ -77,6 +82,7 @@ def programCROC(wordparam):
     
 
 def readbackCROC():
+    print('>>> Readback CROC register.')
     readback=''
     GPIO.output(READ, GPIO.HIGH)
     GPIO.output(SCLK, GPIO.HIGH)
@@ -95,6 +101,7 @@ def readbackCROC():
     return readback
 
 def checkLoadRead(readParams, loadParams):
+    print('>>> Comparing loaded 96-bit word with readback.')
     if readParams==loadParams:
         return True
     else:
@@ -110,36 +117,27 @@ def checkLoadRead(readParams, loadParams):
         print(readParams)
         return False
 
-def checkLoadRead(readParams, loadParams):
-    if readParams==loadParams:
-        return True
-    else:
-        position=''
-        print('ERROR!')
-        for i in range(len(loadParams)):
-            if loadParams[i]==readParams[i]:
-                position+=' '
-            else:
-                position+='!'
-        print(position)
-        print(loadParams)
-        print(readParams)
-        return False
 
 
-loadParams = programCROC(wordparam)
+#loadParams = programCROC(wordparam)
 #print(loadParams)
-readParams = readbackCROC()
-checkLoadRead(readParams, loadParams)
+# readParams = readbackCROC()
+# print(type(readParams))
+messageparam='0b101000010000001110100001000000111010000100000011101000010000001100000000000000010001111000000001'
+loadParams = programCROC(messageparam)
+#checkLoadRead(readParams, loadParams)
 
 
 test=False
 if test:
+    print('>>> Started long test.')
     secatt=0 # second attempt to load the parameters if the first time they readback wrong
     unfixed=0
+    ntotal=0
     timei = datetime.datetime.now().time()
     print(timei)
-    for wordparams in range(0, 2**96, 2**86):
+    for wordparams in range(0, 2**96, 2**84+3000000):
+        ntotal+=1
         loadParams = programCROC(wordparam)
         #print(loadParams)
         readParams = readbackCROC()
@@ -147,7 +145,7 @@ if test:
             #print('Second attempt')
             secatt+=1
             time.sleep(0.1)
-            loadParams = programCROC(wordparam)
+            #loadParams = programCROC(wordparam) # if the readback was not done correctly, there is no need to load again the params
             #print(loadParams)
             readParams = readbackCROC()
         if not(checkLoadRead(readParams, loadParams)):
@@ -156,7 +154,7 @@ if test:
           
     timef=datetime.datetime.now().time()
     print(timef)
-    print('Second attempts:', secatt, 'unfixed:', unfixed)
+    print('Total tests:', ntotal, 'second attempts:', secatt, 'unfixed:', unfixed)
 
-
+# 4% to readback the register wrong, 96% for a second readback to return the correct register 
 
