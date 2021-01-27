@@ -40,9 +40,9 @@ READ = 26 # GPIO26
 
 GPIO.setup(SCLK, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(MOSI, GPIO.OUT, initial=GPIO.LOW)
-#GPIO.setup(MISO, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(LOAD, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(READ, GPIO.OUT, initial=GPIO.LOW)
+GPIO.setup(MISO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # up or down is the default value of MISO signal of CROC
 
 GPIO.output(SCLK, GPIO.LOW) # make sure it is low
 GPIO.output(MOSI, GPIO.LOW) # make sure it is low
@@ -59,47 +59,61 @@ configfile = 'CROCparams.bcf'
 
 # Send the 96-bit word to set the CROC register
 #wordparam = create96bitWord(configfile)
-ch3 = '0b1100111010001101'
-ch2 = '0b1111100010001101'
-ch1 = '0b0000001100111110'
-ch0 = '0b1111110100001111'
+ch3 = '0b0001011010001101'
+ch2 = '0b0001010010001101'
+ch1 = '0b0001011100111110'
+ch0 = '0b0001010100001111'
 mbz = '0b00000000'
 pol = '0b10000000'
 off = '0b01111000'
 polib = '0b10000000'
+
 wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
 write=True
-'''
-if write:
-    #print(type(wordparam), wordparam)
-    message = []
-    for i in range(12):
-        message.append(int(wordparam[i*8:i*8+8],2))
-    #print(message)
-    spi.writebytes(message)
-    GPIO.output(LOAD, GPIO.HIGH)
-    GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
-'''
 
 if write:
     for i in range(96):
-        GPIO.output(SCLK, GPIO.HIGH)
         if wordparam[2+i]=='1':
             GPIO.output(MOSI, GPIO.HIGH) 
-        GPIO.output(SCLK, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+        GPIO.output(SCLK, GPIO.HIGH)
         GPIO.output(MOSI, GPIO.LOW)
+        GPIO.output(SCLK, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+        
     GPIO.output(LOAD, GPIO.HIGH)
     GPIO.output(LOAD, GPIO.LOW)
 
+read=True
+readback=''
+time.sleep(0.02)
+
 if read:
-	GPIO.output(READ, GPIO.HIGH)
-	GPIO.output(SCLK, GPIO.HIGH)
-	GPIO.output(SCLK, GPIO.LOW)
-	GPIO.output(READ, GPIO.LOW)
-	for i in range(96):
+    GPIO.output(READ, GPIO.HIGH)
+    GPIO.output(SCLK, GPIO.HIGH)
+    GPIO.output(READ, GPIO.LOW)
+    GPIO.output(SCLK, GPIO.LOW)
+    for i in range(96):
+        
+        if GPIO.input(MISO):
+            readback+='1'
+        else:
+            readback+='0'
         GPIO.output(SCLK, GPIO.HIGH)
-        # read the MISO gpio and save the info.
         GPIO.output(SCLK, GPIO.LOW)
+    readback ='0b'+readback
+    if readback==wordparam:
+        print('Success!!!')
+    else:
+        position=''
+        print('ERROR!')
+        for i in range(len(wordparam)):
+            if wordparam[i]==readback[i]:
+                position+=' '
+            else:
+                position+='!'
+        print(position)
+        print(readback)
+        print(wordparam)
+        
 
 
 '''
