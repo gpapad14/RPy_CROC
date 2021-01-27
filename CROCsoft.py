@@ -1,7 +1,9 @@
 # Software to control the CROC
 # Date: 22 Jan 2021
 # Author: Giorgos PAPADOPOULOS
-# make sure to set the pythemv38 environment and them use $ python3.
+# Raspberry Pi 4: make sure to set the pythemv38 environment and them use $ python3.
+# Git repo: https://github.com/gpapad14/RPy_CROC.git
+
 import spidev
 import RPi.GPIO as GPIO
 import time
