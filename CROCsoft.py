@@ -1,17 +1,17 @@
 # Software to control the CROC
 # Date: 22 Jan 2021
 # Author: Giorgos PAPADOPOULOS
-
+# make sure to set the pythemv38 environment and them use $ python3.
 import spidev
 import RPi.GPIO as GPIO
 import time
 import numpy as np
 
-def create96bitWord():
-	# from a config file get all the values for the CROC parameters
-	# create a 96-bit word
-	# and return it in -I think- decimal value
-
+#def create96bitWord():
+# from a config file get all the values for the CROC parameters
+# create a 96-bit word
+# and return it in -I think- decimal value
+    
 
 #==============================================
 # Set the spi link
@@ -31,7 +31,7 @@ spi.max_speed_hz = SCLKfreq
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 LOAD = 13 # pin number (randomly chosen)
-READ = 15 # pin number (randomly chosen)
+READ = 19 # pin number (randomly chosen)
 GPIO.setup(LOAD, GPIO.OUT, initial=GPIO.LOW)
 GPIO.setup(READ, GPIO.OUT, initial=GPIO.LOW)
 
@@ -56,20 +56,34 @@ pol = '0b10000000'
 off = '0b01111000'
 polib = '0b10000000'
 wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
-write=True
+write=False
 if write:
-	spi.writebytes(wordparam)
-	GPIO.output(LOAD, GPIO.HIGH)
-	GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+    #print(type(wordparam), wordparam)
+    message = []
+    for i in range(12):
+        message.append(int(wordparam[i*8:i*8+8],2))
+    #print(message)
+    spi.writebytes(message)
+    GPIO.output(LOAD, GPIO.HIGH)
+    GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
 
+if not write:
+    for i in range(96):
+        GPIO.output(LOAD, GPIO.HIGH)
+        #GPIO.output(READ, GPIO.HIGH)
+        if wordparam[2+i]=='1':
+            GPIO.output(READ, GPIO.HIGH)    
+        GPIO.output(LOAD, GPIO.LOW) # make sure that there is not a proble to go HIGH and LOW so quickly
+        GPIO.output(READ, GPIO.LOW)
+    
 
 read=False
-if read:
-	# Get the 96-bit word from the CROC register
-	GPIO.output(LOAD, GPIO.HIGH)
-	# >>> send a single SCLK pulse
-	GPIO.output(LOAD, GPIO.LOW)
-	out=spi.readbytes(12)
+if False:
+    # Get the 96-bit word from the CROC register
+    GPIO.output(LOAD, GPIO.HIGH)
+    # >>> send a single SCLK pulse
+    GPIO.output(LOAD, GPIO.LOW)
+    out=spi.readbytes(12)
 
 
 
