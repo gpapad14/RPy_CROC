@@ -2,6 +2,7 @@
 # Date: 27 Jan 2021
 # Author: Giorgos PAPADOPOULOS
 # Raspberry Pi 4: make sure to set the pythemv38 environment and them use $ python3.
+# This is the final version (v3), full and complete!
 # Git repo: https://github.com/gpapad14/RPy_CROC.git
 
 import RPi.GPIO as GPIO
@@ -139,25 +140,6 @@ def checkLoadRead(readParams, loadParams):
 
 
 #============================================================================================
-# Set the name of the config file that includes the CROC parameters
-#configfile = 'CROCparams.bcf'
-# Send the 96-bit word to set the CROC register
-#wordparam = create96bitWord(configfile)
-
-'''
-#        <gain>CE<-RC->TV
-ch3 = '0b0001010100000011'
-ch2 = '0b0001010100000011'
-ch1 = '0b0001110100000011'
-ch0 = '0b0001010100000011'
-mbz = '0b00000000' # Must Be Zero, DO NOT CHANGE THIS!
-pol =   '0b10000000'
-off =   '0b11111000'
-polib = '0b10000000'
-#wordparam = '0b' + ch3[2:] + ch2[2:] + ch1[2:] + ch0[2:] + mbz[2:] + pol[2:] + off[2:] + polib[2:]
-wordparam = '0b' + ch3[-1:1:-1] + ch2[-1:1:-1] + ch1[-1:1:-1] + ch0[-1:1:-1] + mbz[-1:1:-1] + pol[-1:1:-1] + off[-1:1:-1] + polib[-1:1:-1]
-'''
-#============================================================================================
 
 gain = [5, 5, 5, 5]
 cf1  = [0, 0, 0, 0]
@@ -179,6 +161,7 @@ loadParams = programCROC(wordparam)
 readParams = readbackCROC()
 # print(type(readParams))
 checkLoadRead(readParams, loadParams)
+
 
 
 test=False
@@ -204,10 +187,9 @@ if test:
         if not(checkLoadRead(readParams, loadParams)):
             unfixed+=1
         #time.sleep(1)
-          
+    
     timef=datetime.datetime.now().time()
     print(timef)
     print('Total tests:', ntotal, 'second attempts:', secatt, 'unfixed:', unfixed)
-
 # 4% to readback the register wrong, 96% for a second readback to return the correct register 
 
