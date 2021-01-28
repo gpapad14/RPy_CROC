@@ -123,7 +123,7 @@ def checkLoadRead(readParams, loadParams):
 #print(loadParams)
 # readParams = readbackCROC()
 # print(type(readParams))
-messageparam='0b101000010000001110100001000000111010000100000011101000010000001100000000000000010001111000000001'
+messageparam='0b101000010000001110110001000000111010000100000011101000010000001100000000000000010001111000000001'
 loadParams = programCROC(messageparam)
 #checkLoadRead(readParams, loadParams)
 
