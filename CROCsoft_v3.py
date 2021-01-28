@@ -3,6 +3,7 @@
 # Author: Giorgos PAPADOPOULOS
 # Raspberry Pi 4: make sure to set the pythemv38 environment and them use $ python3.
 # This is the final version (v3), full and complete!
+# After loading the params you can unplug the Raspberry Pi.
 # Git repo: https://github.com/gpapad14/RPy_CROC.git
 
 import RPi.GPIO as GPIO
