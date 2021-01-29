@@ -10,6 +10,7 @@ import RPi.GPIO as GPIO
 import time
 import numpy as np
 import datetime
+import sys
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -142,29 +143,6 @@ def checkLoadRead(readParams, loadParams):
 
 #============================================================================================
 
-gain = [5, 5, 5, 5]
-cf1  = [0, 0, 0, 0]
-nen  = [1, 1, 1, 1]
-rc   = [0, 0, 0, 0]
-tran = [1, 1, 1, 1]
-ven  = [1, 1, 1, 1]
-pol  = 128
-off  = 120
-polib= 128
-wordparam = create_wordparam(gain, cf1, nen, rc, tran, ven, pol, off, polib)
-if not(wordparam):
-    print('ERROR: wordparam was not created.')
-    return False
-print('wordparam =', wordparam)
-
-loadParams = programCROC(wordparam)
-#print(loadParams)
-readParams = readbackCROC()
-# print(type(readParams))
-checkLoadRead(readParams, loadParams)
-
-
-
 test=False
 if test:
     print('>>> Started long test.')
@@ -193,4 +171,27 @@ if test:
     print(timef)
     print('Total tests:', ntotal, 'second attempts:', secatt, 'unfixed:', unfixed)
 # 4% to readback the register wrong, 96% for a second readback to return the correct register 
+
+gain = [5, 5, 5, 5]
+cf1  = [0, 0, 0, 0]
+nen  = [1, 1, 1, 1]
+rc   = [0, 0, 0, 0]
+tran = [1, 1, 1, 1]
+ven  = [1, 1, 1, 1]
+pol  = 128
+off  = 120
+polib= 128
+wordparam = create_wordparam(gain, cf1, nen, rc, tran, ven, pol, off, polib)
+if not(wordparam):
+    sys.exit('ERROR: wordparam was not created.')
+print('wordparam =', wordparam)
+
+loadParams = programCROC(wordparam)
+#print(loadParams)
+readParams = readbackCROC()
+# print(type(readParams))
+checkLoadRead(readParams, loadParams)
+
+
+
 
