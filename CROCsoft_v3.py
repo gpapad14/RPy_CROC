@@ -143,10 +143,10 @@ def checkLoadRead(readParams, loadParams):
 
 #============================================================================================
 
-test=False
+test=False 
 if test:
     print('>>> Started long test.')
-    secatt=0 # second attempt to load the parameters if the first time they readback wrong
+    secatt=0 # second attempt to load the parameters if the first time they are readback wrong
     unfixed=0
     ntotal=0
     timei = datetime.datetime.now().time()
@@ -172,15 +172,18 @@ if test:
     print('Total tests:', ntotal, 'second attempts:', secatt, 'unfixed:', unfixed)
 # 4% to readback the register wrong, 96% for a second readback to return the correct register 
 
-gain = [5, 5, 5, 5]
-cf1  = [0, 0, 0, 0]
-nen  = [1, 1, 1, 1]
-rc   = [0, 0, 0, 0]
-tran = [1, 1, 1, 1]
-ven  = [1, 1, 1, 1]
-pol  = 128
-off  = 120
-polib= 128
+
+
+# chan: 3, 2, 1, 0 
+gain = [5, 5, 5, 5] # from 0 to 63
+cf1  = [0, 0, 0, 0] # 0 or 1
+nen  = [1, 1, 1, 1] # 0 or 1
+rc   = [0, 0, 0, 0] # from 0 to 63
+tran = [1, 1, 1, 1] # 0 or 1
+ven  = [1, 1, 1, 1] # 0 or 1
+pol  = 128 # from 0 to 255
+off  = 120 # from 0 to 255
+polib= 128 # from 0 to 255
 wordparam = create_wordparam(gain, cf1, nen, rc, tran, ven, pol, off, polib)
 if not(wordparam):
     sys.exit('ERROR: wordparam was not created.')
